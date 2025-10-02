@@ -16,9 +16,7 @@ int main() {
 for(int i =0;i<=rows; i++) {
         print_sp(i, rows);
         print_num(i);
-    
     }
-    
  return 0;
  }
 
