@@ -12,39 +12,29 @@ void emp_info(employee_t emp) {
     printf("employee id = %d\n", emp.id);
     printf("employee name = %s\n", emp.name);
     printf("employee age = %d\n", emp.age);
-    printf("employee salary = %.2f\n\n", emp.salary);
-}
-
-int emp_average(employee_t emp[], int n) {
-    int sum = 0;
-    for (int i = 0; i < n; i++) {
-        sum += emp[i].age;
-    }
-    return sum / n;
+    printf("employee salary = %f\n\n", emp.salary);
 }
 
 void emp_writefile(employee_t emp[], int n) {
-    FILE* fp = fopen("employee.bin", "wb+");
+    FILE* fp = fopen("employee.bin", "wb");
     if (!fp) {
-        perror("fopen failed");
+        perror("fopen write failed");
         return;
     }
-    for (int i = 0; i < n; i++) {
-        fwrite(&emp[i], sizeof(employee_t), 1, fp);
-    }
+    fwrite(emp, sizeof(employee_t), n, fp);
     fclose(fp);
 }
 
-void emp_readfile() {
+void emp_readfile(employee_t emp[], int n) {
     FILE* fp = fopen("employee.bin", "rb");
     if (!fp) {
-        perror("fopen failed");
+        perror("fopen read failed");
         return;
     }
-    employee_t emp;
+
     int i = 0;
-    while (fread(&emp, sizeof(employee_t), 1, fp)) {
-        printf("[%d] %d %s %.2f\n", i, emp.id, emp.name, emp.salary);
+    while (fread(&emp[i], sizeof(employee_t), 1, fp) == 1 && i < n) {
+        printf("[%d] %d %s\n", i, emp[i].id, emp[i].name);
         i++;
     }
     fclose(fp);
@@ -68,15 +58,17 @@ int main() {
     emp[2].salary = 90000.0;
     strcpy(emp[2].name, "swift");
 
-    printf("Size of employee_t = %zu bytes\n", sizeof(employee_t));
-
-    for (int i = 0; i < 3; i++) emp_info(emp[i]);
-
-    printf("Average age = %d\n", emp_average(emp, 3));
-
+    // 寫入檔案
     emp_writefile(emp, 3);
-    printf("\n=== From file ===\n");
-    emp_readfile();
+
+    // 從檔案讀出，顯示 [index] id name
+    emp_readfile(emp, 3);
+    printf("\n");
+
+    // 顯示完整員工資訊
+    for (int i = 0; i < 3; i++) {
+        emp_info(emp[i]);
+    }
 
     return 0;
 }
